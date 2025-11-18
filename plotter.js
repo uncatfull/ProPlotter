@@ -1,94 +1,54 @@
-let chartInstance = null;
-
-function createGraph(xVals, yVals, options) {
-  const ctx = document.getElementById('graphPreview').getContext('2d');
-  if (chartInstance) chartInstance.destroy();
-
-  const chartType = options.type === 'scatter' ? 'scatter' : options.type;
-  let data = {};
-
-  if (chartType === 'pie') {
-    data = {
-      labels: xVals,
-      datasets: [{
-        data: yVals.map(Number),
-        backgroundColor: options.lineColor,
-      }]
-    };
-  } else {
-    data = {
-      labels: xVals,
-      datasets: [{
-        label: options.ylabel,
-        data: yVals.map(Number),
-        borderColor: options.lineColor,
-        backgroundColor: options.fillArea ? "rgba(0,173,239,0.22)" : "transparent",
-        fill: options.fillArea,
-        borderWidth: options.lineWidth,
-        pointStyle: options.pointStyle,
-        pointRadius: options.pointSize,
-        tension: options.type === 'line' ? 0.4 : 0
-      }]
-    };
+// Utility for getting X axis values
+function getXValues(type) {
+  switch(type) {
+    case 'even': return [2,4,6,8,10,12,14,16,18,20];
+    case 'odd': return [1,3,5,7,9,11,13,15,17,19];
+    case '1to10':
+    default: return Array.from({length:10}, (_,i)=>i+1);
   }
-
-  chartInstance = new Chart(ctx, {
-    type: chartType,
-    data: data,
-    options: {
-      responsive: true,
-      animation: {
-        duration: options.animSpeed,
-        easing: 'easeOutBounce'
-      },
-      plugins: {
-        title: {
-          display: true,
-          text: options.title,
-          color: '#F3F3F3',
-          font: { 
-            size: 18, 
-            family: 'Helvetica', 
-            weight: options.fontWeight 
-          }
-        },
-        legend: {
-          display: true,
-          labels: { 
-            color: '#ddd', 
-            font: { 
-              family: 'Helvetica', 
-              weight: options.fontWeight 
-            } 
-          }
-        }
-      },
-      scales: chartType !== 'pie' ? {
-        x: {
-          title: { 
-            display: true, 
-            text: options.xlabel, 
-            color: '#ddd', 
-            font: { weight: options.fontWeight } 
-          },
-          grid: { 
-            display: options.gridLines, 
-            color: '#333' 
-          }
-        },
-        y: {
-          title: { 
-            display: true, 
-            text: options.ylabel, 
-            color: '#ddd', 
-            font: { weight: options.fontWeight } 
-          },
-          grid: { 
-            display: options.gridLines, 
-            color: '#333' 
-          }
-        }
-      } : {}
-    }
-  });
 }
+// Utility for getting Y axis values based on selection
+function getYValues(type, custom) {
+  switch(type) {
+    case 'linear': return getXValues(document.getElementById('xType').value).map(x=>2*x+1);
+    case 'sin': return getXValues(document.getElementById('xType').value).map(x=>Math.round(8+6*Math.sin(x)));
+    case 'custom':
+      let arr = custom.split(',').map(v=>parseFloat(v.trim())).filter(v=>!isNaN(v));
+      if(arr.length === 10) return arr;
+      return [3,7,5,10,8,12,9,14,11,15];
+    case 'default':
+    default: return [3,7,5,10,8,12,9,14,11,15];
+  }
+}
+
+// Chart.js setup code
+let ctx = document.getElementById('myChart').getContext('2d');
+window.chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: getXValues('1to10'),
+    datasets: [{
+      label: 'Trend',
+      data: getYValues('default',''),
+      borderColor: '#36A2EB',
+      backgroundColor: 'rgba(54,162,235,0.35)',
+      fill: true,
+      tension: 0.45, // Smoother curve
+    }]
+  },
+  options: {
+    animation: {
+      duration: 1150,
+      easing: 'easeInOutQuart'
+    },
+    responsive: true,
+    plugins: {
+      legend: {display: false},
+      tooltip: {enabled: true}
+    },
+    scales: {
+      x: { title: { display: true, text: 'X Value', font: {weight: 600} } },
+      y: { title: { display: true, text: 'Y Value', font: {weight: 600} }, beginAtZero:true }
+    }
+  }
+});
