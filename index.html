@@ -1,127 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ProPlotter</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Graph Customizer</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <main class="container">
-    <!-- Header -->
-    <header class="section">
-      <h1>ProPlotter</h1>
-    </header>
-
-    <!-- Data Input Section -->
-    <section class="section data-input">
-      <h2>Enter Data</h2>
-      <div class="dropdowns">
-        <label>Graph Type
-          <select id="graphType">
-            <option value="line">Line</option>
-            <option value="bar">Bar</option>
-            <option value="scatter">Scatter</option>
-            <option value="pie">Pie</option>
-          </select>
-        </label>
-      </div>
-      <div class="input-pair">
-        <div class="input-group">
-          <label>X Values
-            <select id="xDropdown">
-              <option value="manual">Manual Entry</option>
-              <option value="csv">Import CSV</option>
-            </select>
-            <div id="xFileInput" style="display:none;">
-              <input type="file" accept=".csv" id="xCSV" />
-            </div>
-            <textarea id="xValues" placeholder="Enter X values, comma-separated"></textarea>
-          </label>
+  <div class="container">
+    <header>Graph Plotter with Customization</header>
+    <div class="flex-row">
+      <div class="customization-panel">
+        <div class="custom-btn-row">
+          <button type="button" disabled style="background:#5d96d6;opacity:1;font-weight:600;">Customise Graph</button>
+          <button id="applyBtn" type="button">Apply Changes</button>
         </div>
-        <div class="input-group">
-          <label>Y Values
-            <select id="yDropdown">
-              <option value="manual">Manual Entry</option>
-              <option value="csv">Import CSV</option>
-            </select>
-            <div id="yFileInput" style="display:none;">
-              <input type="file" accept=".csv" id="yCSV" />
-            </div>
-            <textarea id="yValues" placeholder="Enter Y values, comma-separated"></textarea>
-          </label>
+        <div class="form-group">
+          <label class="form-label" for="xType">X Values</label>
+          <select class="custom-select" id="xType">
+            <option value="1to10">1, 2, 3, ... 10</option>
+            <option value="even">2, 4, 6, 8, 10, ... 20</option>
+            <option value="odd">1, 3, 5, 7, 9, ... 19</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="yType">Y Values</label>
+          <select class="custom-select" id="yType">
+            <option value="default">3, 7, 5, 10, 8, ... 15</option>
+            <option value="custom">Enter Manually Below</option>
+            <option value="linear">Linear (y = 2x + 1)</option>
+            <option value="sin">Sine Curve</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:36px;">
+          <label class="form-label" for="yCustom">Y Values (if manual):</label>
+          <textarea class="custom-textarea" id="yCustom" placeholder="e.g. 3,7,5,10,8,12,9,14,11,15"></textarea>
+        </div>
+        <div class="color-group">
+          <label class="color-label" for="fillColor">Area Fill Colour</label>
+          <input type="color" id="fillColor" value="#36A2EB" />
         </div>
       </div>
-      <button id="createGraph">Preview Graph</button>
-    </section>
-
-    <!-- Graph Preview Section -->
-    <section class="section preview-section">
-      <h2>Graph Preview</h2>
-      <div class="preview">
-        <canvas id="graphPreview"></canvas>
+      <div class="graph-panel">
+        <canvas id="myChart"></canvas>
       </div>
-      <button id="downloadGraph">Download Graph as PNG</button>
-    </section>
-
-    <!-- Customization Section -->
-    <section class="section customize">
-      <h2>Customize Graph</h2>
-      <div class="customize-grid">
-
-        <label>Graph Title <input type="text" id="graphTitle" value="My Graph"></label>
-        <label>Line Color <input type="color" id="lineColor" value="#00ADEF"></label>
-        <label>Fill Area <input type="checkbox" id="fillArea" checked></label>
-        <label>Line Width
-          <select id="lineWidth">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-        </label>
-        <label>Point Style
-          <select id="pointStyle">
-            <option value="circle">Circle</option>
-            <option value="triangle">Triangle</option>
-            <option value="rect">Rectangle</option>
-            <option value="star">Star</option>
-            <option value="cross">Cross</option>
-          </select>
-        </label>
-        <label>Point Size
-          <select id="pointSize">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5" selected>5</option>
-            <option value="6">6</option>
-          </select>
-        </label>
-        <label>X Label <input type="text" id="xlabel" value="X Axis"></label>
-        <label>Y Label <input type="text" id="ylabel" value="Y Axis"></label>
-        <label>Grid Lines <input type="checkbox" id="gridLines" checked></label>
-        <label>Background Color <input type="color" id="bgColor" value="#1f2025"></label>
-        <label>Animation Speed
-          <select id="animSpeed">
-            <option value="500">Fast</option>
-            <option value="1000" selected>Medium</option>
-            <option value="1500">Slow</option>
-            <option value="2000">Very Slow</option>
-          </select>
-        </label>
-        <label>Font Weight
-          <select id="fontWeight">
-            <option value="normal">Normal</option>
-            <option value="bold" selected>Bold</option>
-          </select>
-        </label>
-      </div>
-    </section>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </div>
+  </div>
   <script src="plotter.js"></script>
   <script src="script.js"></script>
 </body>
