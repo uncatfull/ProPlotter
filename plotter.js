@@ -1,54 +1,92 @@
-// Utility for getting X axis values
-function getXValues(type) {
-  switch(type) {
-    case 'even': return [2,4,6,8,10,12,14,16,18,20];
-    case 'odd': return [1,3,5,7,9,11,13,15,17,19];
-    case '1to10':
-    default: return Array.from({length:10}, (_,i)=>i+1);
-  }
-}
-// Utility for getting Y axis values based on selection
-function getYValues(type, custom) {
-  switch(type) {
-    case 'linear': return getXValues(document.getElementById('xType').value).map(x=>2*x+1);
-    case 'sin': return getXValues(document.getElementById('xType').value).map(x=>Math.round(8+6*Math.sin(x)));
-    case 'custom':
-      let arr = custom.split(',').map(v=>parseFloat(v.trim())).filter(v=>!isNaN(v));
-      if(arr.length === 10) return arr;
-      return [3,7,5,10,8,12,9,14,11,15];
-    case 'default':
-    default: return [3,7,5,10,8,12,9,14,11,15];
-  }
-}
 
-// Chart.js setup code
-let ctx = document.getElementById('myChart').getContext('2d');
-window.chart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: getXValues('1to10'),
-    datasets: [{
-      label: 'Trend',
-      data: getYValues('default',''),
-      borderColor: '#36A2EB',
-      backgroundColor: 'rgba(54,162,235,0.35)',
-      fill: true,
-      tension: 0.45, // Smoother curve
-    }]
-  },
-  options: {
-    animation: {
-      duration: 1150,
-      easing: 'easeInOutQuart'
-    },
-    responsive: true,
-    plugins: {
-      legend: {display: false},
-      tooltip: {enabled: true}
-    },
-    scales: {
-      x: { title: { display: true, text: 'X Value', font: {weight: 600} } },
-      y: { title: { display: true, text: 'Y Value', font: {weight: 600} }, beginAtZero:true }
+document.addEventListener('DOMContentLoaded', () => {
+  const xDropdown = document.getElementById('xDropdown');
+  const yDropdown = document.getElementById('yDropdown');
+  const xFileInput = document.getElementById('xFileInput');
+  const yFileInput = document.getElementById('yFileInput');
+  const xCSV = document.getElementById('xCSV');
+  const yCSV = document.getElementById('yCSV');
+  const xValues = document.getElementById('xValues');
+  const yValues = document.getElementById('yValues');
+
+  // Dropdown CSV input toggle
+  xDropdown.addEventListener('change', () => {
+    xFileInput.style.display = xDropdown.value === 'csv' ? 'block' : 'none';
+    xValues.style.display = xDropdown.value === 'manual' ? 'block' : 'none';
+  });
+
+  yDropdown.addEventListener('change', () => {
+    yFileInput.style.display = yDropdown.value === 'csv' ? 'block' : 'none';
+    yValues.style.display = yDropdown.value === 'manual' ? 'block' : 'none';
+  });
+
+  // Read CSV files
+  xCSV.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        // Basic CSV: use only the first row or first column values
+        let text = event.target.result.trim();
+        let data = text.includes('\n') ? text.split('\n').join(',') : text;
+        xValues.value = data.split(',').map(v => v.trim()).join(',');
+      };
+      reader.readAsText(file);
     }
-  }
+  });
+  yCSV.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        let text = event.target.result.trim();
+        let data = text.includes('\n') ? text.split('\n').join(',') : text;
+        yValues.value = data.split(',').map(v => v.trim()).join(',');
+      };
+      reader.readAsText(file);
+    }
+  });
+
+  // Make the graph
+  document.getElementById('createGraph').addEventListener('click', () => {
+    let xData = xValues.value.split(',').map(v => v.trim()).slice(0, 2000);
+    let yData = yValues.value.split(',').map(v => v.trim()).slice(0, 2000);
+
+    if (xData.length === 0 || yData.length === 0 || xData[0] === '' || yData[0] === '') {
+      alert("Please enter or import both X and Y values.");
+      return;
+    }
+
+    const options = {
+      type: document.getElementById('graphType').value,
+      lineColor: document.getElementById('lineColor').value,
+      fillArea: document.getElementById('fillArea').checked,
+      lineWidth: parseInt(document.getElementById('lineWidth').value),
+      pointStyle: document.getElementById('pointStyle').value,
+      pointSize: parseInt(document.getElementById('pointSize').value),
+      xlabel: document.getElementById('xlabel').value,
+      ylabel: document.getElementById('ylabel').value,
+      gridLines: document.getElementById('gridLines').checked,
+      bgColor: document.getElementById('bgColor').value,
+      animSpeed: parseInt(document.getElementById('animSpeed').value),
+      title: document.getElementById('graphTitle').value,
+      fontWeight: document.getElementById('fontWeight').value
+    };
+
+    document.querySelector('.preview').style.background = options.bgColor;
+    createGraph(xData, yData, options);
+  });
+
+  // Download Graph as PNG
+  document.getElementById('downloadGraph').addEventListener('click', () => {
+    if (!chartInstance) {
+      alert("No graph to download. Create one first.");
+      return;
+    }
+    const canvas = document.getElementById('graphPreview');
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'proplotter-graph.png';
+    link.click();
+  });
 });
