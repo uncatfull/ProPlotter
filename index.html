@@ -135,48 +135,4 @@
   <script src="script.js"></script>
 </body>
 </html>
-<body>
-  <div class="container">
-    <header>Graph Plotter with Customization</header>
-    <div class="flex-row">
-      <div class="customization-panel">
-        <div class="custom-btn-row">
-          <button type="button" disabled style="background:#5d96d6;opacity:1;font-weight:600;">Customise Graph</button>
-          <button id="applyBtn" type="button">Apply Changes</button>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="xType">X Values</label>
-          <select class="custom-select" id="xType">
-            <option value="1to10">1, 2, 3, ... 10</option>
-            <option value="even">2, 4, 6, 8, 10, ... 20</option>
-            <option value="odd">1, 3, 5, 7, 9, ... 19</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="yType">Y Values</label>
-          <select class="custom-select" id="yType">
-            <option value="default">3, 7, 5, 10, 8, ... 15</option>
-            <option value="custom">Enter Manually Below</option>
-            <option value="linear">Linear (y = 2x + 1)</option>
-            <option value="sin">Sine Curve</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom:36px;">
-          <label class="form-label" for="yCustom">Y Values (if manual):</label>
-          <textarea class="custom-textarea" id="yCustom" placeholder="e.g. 3,7,5,10,8,12,9,14,11,15"></textarea>
-        </div>
-        <div class="color-group">
-          <label class="color-label" for="fillColor">Area Fill Colour</label>
-          <input type="color" id="fillColor" value="#36A2EB" />
-        </div>
-      </div>
-      <div class="graph-panel">
-        <canvas id="myChart"></canvas>
-      </div>
-    </div>
-  </div>
-  <script src="plotter.js"></script>
-  <script src="script.js"></script>
-</body>
-</html>
 
